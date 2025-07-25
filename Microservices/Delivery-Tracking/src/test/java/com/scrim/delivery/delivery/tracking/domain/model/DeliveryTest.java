@@ -50,7 +50,7 @@ class DeliveryTest {
       .street("Rua Java 21")
       .number("200")
       .complement("Casa Vermelha")
-      .name("Marcos Andrade")
+      .name("Marcos Com Fome")
       .phone("(00) 00000-0000")
       .build();
 

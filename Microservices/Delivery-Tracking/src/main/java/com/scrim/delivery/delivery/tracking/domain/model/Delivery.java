@@ -98,12 +98,12 @@ public class Delivery {
 
   public void pickUp(UUID courierId) {
     this.setCourierId(courierId);
-    this.setStatus(DeliveryStatus.IN_TRANSIT);
+    this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
     this.setAssignedAt(OffsetDateTime.now());
   }
 
   public void markAsDelivery() {
-    this.setStatus(DeliveryStatus.DELIVERY);
+    this.changeStatusTo(DeliveryStatus.DELIVERY);
     this.setFullfilledAt(OffsetDateTime.now());
   }
 
@@ -126,7 +126,7 @@ public class Delivery {
       .mapToInt(Item::getQuantity)
       .sum();
 
-    setTotalItems(totalItems);
+    this.setTotalItems(totalItems);
   }
 
   private void verifyIfCanBePlaced() {
@@ -150,6 +150,17 @@ public class Delivery {
     return this.getSender() != null
       && this.getRecipient() != null
       && this.totalCost != null;
+  }
+
+  private void changeStatusTo(DeliveryStatus newStatus) {
+    if (newStatus != null && this.getStatus().canChangeTo(newStatus)) {
+      throw new DomainException(
+        "Invalid Status transition from: " + this.getStatus() +
+          " to " + newStatus
+      );
+    }
+
+    this.setStatus(newStatus);
   }
 
   @Getter
