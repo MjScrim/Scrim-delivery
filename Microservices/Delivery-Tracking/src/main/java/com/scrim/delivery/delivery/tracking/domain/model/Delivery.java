@@ -78,6 +78,8 @@ public class Delivery {
   }
 
   public void editPreparationDetails(PreparationDetails details) {
+    verifyIfCanBeEdit();
+
     this.setSender(details.sender);
     this.setRecipient(details.recipient);
     this.setDistanceFee(details.distanceFee);
@@ -132,6 +134,12 @@ public class Delivery {
       throw new DomainException();
     }
 
+    if (!getStatus().equals(DeliveryStatus.DRAFT)) {
+      throw new DomainException();
+    }
+  }
+
+  private void verifyIfCanBeEdit() {
     if (!getStatus().equals(DeliveryStatus.DRAFT)) {
       throw new DomainException();
     }
