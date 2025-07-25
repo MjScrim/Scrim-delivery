@@ -1,5 +1,9 @@
 package com.scrim.delivery.courier.management.domain.model;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import java.util.UUID;
 
@@ -8,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+@Entity
 @Getter
 @Setter(AccessLevel.PACKAGE)
 //Identificador único de Entity como UUID.
@@ -15,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 public class Courier {
 
+  @Id
   @EqualsAndHashCode.Include
   private UUID id;
 
@@ -29,6 +35,7 @@ public class Courier {
 
   private OffsetDateTime lastFulfilledDeliveryAt;
 
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "courier")
   private List<AssignedDelivery> pendingDeliverys = new ArrayList<>();
 
   //Mantendo a list acessivel somente pelo AggregoreRoot
@@ -52,7 +59,7 @@ public class Courier {
   //Garantindo a modificação de acesso dos ValueObjects somenete via classe Root.
   public void assign(UUID deliveryId) {
     this.pendingDeliverys.add(
-      AssignedDelivery.pending(deliveryId)
+      AssignedDelivery.pending(deliveryId, this)
     );
 
     this.setPendingDeliveryQuantity(
