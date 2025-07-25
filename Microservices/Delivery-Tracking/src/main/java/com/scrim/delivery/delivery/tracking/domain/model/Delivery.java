@@ -1,6 +1,7 @@
 package com.scrim.delivery.delivery.tracking.domain.model;
 
 import com.scrim.delivery.delivery.tracking.domain.exception.DomainException;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Entity
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 //Identificando o AgregateRoot via Id.
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -19,6 +21,7 @@ import java.util.UUID;
 @Getter
 public class Delivery {
 
+  @Id
   @EqualsAndHashCode.Include
   private UUID id;
 
@@ -37,9 +40,29 @@ public class Delivery {
 
   private Integer totalItems;
 
+  @Embedded
+  @AttributeOverrides({
+    @AttributeOverride(name = "zipCode", column = @Column(name = "sender_zip_code")),
+    @AttributeOverride(name = "street", column = @Column(name = "sender_street")),
+    @AttributeOverride(name = "number", column = @Column(name = "sender_number")),
+    @AttributeOverride(name = "complement", column = @Column(name = "sender_complement")),
+    @AttributeOverride(name = "name", column = @Column(name = "sender_name")),
+    @AttributeOverride(name = "phone", column = @Column(name = "sender_phone"))
+  })
   private ContactPoint sender;
+
+  @Embedded
+  @AttributeOverrides({
+    @AttributeOverride(name = "zipCode", column = @Column(name = "recipient_zip_code")),
+    @AttributeOverride(name = "street", column = @Column(name = "recipient_street")),
+    @AttributeOverride(name = "number", column = @Column(name = "recipient_number")),
+    @AttributeOverride(name = "complement", column = @Column(name = "recipient_complement")),
+    @AttributeOverride(name = "name", column = @Column(name = "recipient_name")),
+    @AttributeOverride(name = "phone", column = @Column(name = "recipient_phone"))
+  })
   private ContactPoint recipient;
 
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "delivery")
   private List<Item> items = new ArrayList<>();
 
   //Contrustor preparado para demonstrar a intenção e uso do Model. Com predefinição dos atributos. Seguindo o DDD.
@@ -59,7 +82,7 @@ public class Delivery {
 
   //Garantindo que somente AgregateRoot possa acessar e modificar a lista.
   public UUID addItem(String name, int quantity) {
-    Item item = Item.brandNew(name, quantity);
+    Item item = Item.brandNew(name, quantity, this);
     items.add(item);
 
     calculateTotalItems();
@@ -103,7 +126,7 @@ public class Delivery {
   }
 
   public void markAsDelivery() {
-    this.changeStatusTo(DeliveryStatus.DELIVERY);
+    this.changeStatusTo(DeliveryStatus.DELIVERED);
     this.setFullfilledAt(OffsetDateTime.now());
   }
 

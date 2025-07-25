@@ -1,11 +1,12 @@
 package com.scrim.delivery.delivery.tracking.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import jakarta.persistence.Embeddable;
+import lombok.*;
 
+//Para persistência com o Jakarta.
+@Embeddable
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @Builder
 @EqualsAndHashCode
 @Getter
