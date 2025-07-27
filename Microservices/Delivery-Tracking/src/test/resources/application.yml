@@ -7,6 +7,6 @@ spring:
       ddl-auto: create-drop
     show-sql: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/deliverydb_test
+    url: jdbc:postgresql://host.docker.internal:5432/deliverydb_test
     username: postgres
     password: postgres

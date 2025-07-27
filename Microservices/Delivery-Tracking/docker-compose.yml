@@ -1,0 +1,8 @@
+services:
+  scrim_finance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: delivery-tracking
+    ports:
+      - "8080:8080"
