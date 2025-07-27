@@ -1,14 +1,16 @@
 package com.scrim.delivery.delivery.tracking.api.controller;
 
+import com.scrim.delivery.delivery.tracking.api.assembler.DeliveryAssembler;
+import com.scrim.delivery.delivery.tracking.api.model.DeliveryModel;
 import com.scrim.delivery.delivery.tracking.api.model.input.DeliveryInput;
 import com.scrim.delivery.delivery.tracking.domain.model.Delivery;
 import com.scrim.delivery.delivery.tracking.domain.repository.DeliveryRepository;
 import com.scrim.delivery.delivery.tracking.domain.service.DeliveryPreparationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,28 +24,31 @@ public class DeliveryController {
 
   private final DeliveryPreparationService deliveryPreparationService;
   private final DeliveryRepository deliveryRepository;
+  private final DeliveryAssembler deliveryAssembler;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Delivery draft(@RequestBody @Valid DeliveryInput input) {
-      return deliveryPreparationService.draft(input);
+  public DeliveryModel draft(@RequestBody @Valid DeliveryInput input) {
+    return deliveryAssembler.toModel(deliveryPreparationService.draft(input));
   }
 
   @PutMapping("/{deliveryId}")
   @ResponseStatus(HttpStatus.FOUND)
-  public Delivery edit(@PathVariable UUID deliveryId,
+  public DeliveryModel edit(@PathVariable UUID deliveryId,
                        @RequestBody @Valid DeliveryInput input) {
-    return deliveryPreparationService.edit(deliveryId, input);
+    return deliveryAssembler.toModel(deliveryPreparationService.edit(deliveryId, input));
   }
 
   @GetMapping
-  public PagedModel<Delivery> findAll(@PageableDefault Pageable pageable) {
-    return new PagedModel<>(deliveryRepository.findAll(pageable));
+  public Page<DeliveryModel> findAll(@PageableDefault Pageable pageable) {
+    Page<Delivery> deliveryPage = deliveryRepository.findAll(pageable);
+    return deliveryAssembler.toPageModel(deliveryPage);
   }
 
   @GetMapping("/{deliveryId}")
-  public Delivery findById(@PathVariable UUID deliveryId) {
+  public DeliveryModel findById(@PathVariable UUID deliveryId) {
     return deliveryRepository.findById(deliveryId)
+      .map(deliveryAssembler::toModel)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
   }
 
