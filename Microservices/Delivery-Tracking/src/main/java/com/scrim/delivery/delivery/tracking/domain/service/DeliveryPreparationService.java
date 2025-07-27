@@ -1,5 +1,7 @@
 package com.scrim.delivery.delivery.tracking.domain.service;
 
+import com.scrim.delivery.delivery.tracking.api.assembler.DeliveryAssembler;
+import com.scrim.delivery.delivery.tracking.api.model.DeliveryModel;
 import com.scrim.delivery.delivery.tracking.api.model.input.ContactPointInput;
 import com.scrim.delivery.delivery.tracking.api.model.input.DeliveryInput;
 import com.scrim.delivery.delivery.tracking.api.model.input.ItemInput;
@@ -20,24 +22,25 @@ import java.util.UUID;
 public class DeliveryPreparationService {
 
   private final DeliveryRepository deliveryRepository;
+  private final DeliveryAssembler deliveryAssembler;
 
   @Transactional
-  public Delivery draft(DeliveryInput input) {
+  public DeliveryModel draft(DeliveryInput input) {
     Delivery delivery = Delivery.draft();
 
     handlePreparation(input, delivery);
 
-    return deliveryRepository.saveAndFlush(delivery);
+    return deliveryAssembler.toModel(deliveryRepository.saveAndFlush(delivery));
   }
 
   @Transactional
-  public Delivery edit(UUID deliveryId, DeliveryInput input) {
+  public DeliveryModel edit(UUID deliveryId, DeliveryInput input) {
     Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(DomainException::new);
 
     delivery.removeItems();
     handlePreparation(input, delivery);
 
-    return deliveryRepository.saveAndFlush(delivery);
+    return deliveryAssembler.toModel(deliveryRepository.saveAndFlush(delivery));
   }
 
   private void handlePreparation(DeliveryInput input, Delivery delivery) {
