@@ -8,13 +8,16 @@ import com.scrim.delivery.delivery.tracking.api.model.input.ItemInput;
 import com.scrim.delivery.delivery.tracking.domain.exception.DomainException;
 import com.scrim.delivery.delivery.tracking.domain.model.ContactPoint;
 import com.scrim.delivery.delivery.tracking.domain.model.Delivery;
+import com.scrim.delivery.delivery.tracking.domain.model.DeliveryEstimate;
 import com.scrim.delivery.delivery.tracking.domain.repository.DeliveryRepository;
+import com.scrim.delivery.delivery.tracking.domain.service.interfaces.CourierPayoutCalculatationService;
+import com.scrim.delivery.delivery.tracking.infrastructure.fake.DeliveryTimeEstimationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Duration;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Service
@@ -23,6 +26,8 @@ public class DeliveryPreparationService {
 
   private final DeliveryRepository deliveryRepository;
   private final DeliveryAssembler deliveryAssembler;
+  private final DeliveryTimeEstimationServiceImpl deliveryTimeEstimationService;
+  private final CourierPayoutCalculatationService courierPayoutCalculatationService;
 
   @Transactional
   public DeliveryModel draft(DeliveryInput input) {
@@ -65,17 +70,15 @@ public class DeliveryPreparationService {
       .street(recipientInput.getStreet())
       .build();
 
-    Duration expectedDeliveryTime = Duration.ofHours(1);
-
-    //Valores fixos até então.
-    BigDecimal courierPayout = new BigDecimal("10");
-    BigDecimal distanceFee = new BigDecimal("10");
+    DeliveryEstimate estimate = deliveryTimeEstimationService.estimate(sender, recipient);
+    BigDecimal calculatePayout = courierPayoutCalculatationService.calculatePayout(estimate.getDistanceInKm());
+    BigDecimal distanceFee = calculateFee(estimate.getDistanceInKm());
 
     var preparationDetails = Delivery.PreparationDetails.builder()
       .sender(sender)
       .recipient(recipient)
-      .expectedDeliveryTime(expectedDeliveryTime)
-      .courierPayout(courierPayout)
+      .expectedDeliveryTime(estimate.getEstimatedTime())
+      .courierPayout(calculatePayout)
       .distanceFee(distanceFee)
       .build();
 
@@ -85,6 +88,12 @@ public class DeliveryPreparationService {
       //Apenas o agregado pode instanciar.
       delivery.addItem(item.getName(), item.getQuantity());
     }
+  }
+
+  private BigDecimal calculateFee(Double distanceInKm) {
+    return new BigDecimal("3")
+      .multiply(new BigDecimal(distanceInKm))
+      .setScale(2, RoundingMode.HALF_DOWN);
   }
 
 }
