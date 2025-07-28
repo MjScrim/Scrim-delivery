@@ -1,4 +1,4 @@
-package com.scrim.delivery.delivery.tracking.common.config;
+package com.scrim.delivery.delivery.tracking.infrastructure.config.mapper;
 
 import com.scrim.delivery.delivery.tracking.api.model.DeliveryModel;
 import com.scrim.delivery.delivery.tracking.domain.model.Delivery;
