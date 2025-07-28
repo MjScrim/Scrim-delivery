@@ -1,4 +1,4 @@
-package com.scrim.delivery.courier.management.common.config;
+package com.scrim.delivery.courier.management.infrastructure.config.mapper;
 
 import com.scrim.delivery.courier.management.api.model.CourierModel;
 import com.scrim.delivery.courier.management.domain.model.Courier;

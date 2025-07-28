@@ -1,7 +1,7 @@
 server.port: 8081
 spring:
   application:
-    name: courier-management
+    name: delivery-tracking
   jpa:
     hibernate:
       ddl-auto: create-drop
