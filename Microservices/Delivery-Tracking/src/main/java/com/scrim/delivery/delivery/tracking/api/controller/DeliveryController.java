@@ -1,7 +1,9 @@
 package com.scrim.delivery.delivery.tracking.api.controller;
 
 import com.scrim.delivery.delivery.tracking.api.model.DeliveryModel;
+import com.scrim.delivery.delivery.tracking.api.model.input.CourierInput;
 import com.scrim.delivery.delivery.tracking.api.model.input.DeliveryInput;
+import com.scrim.delivery.delivery.tracking.domain.service.DeliveryCheckpointService;
 import com.scrim.delivery.delivery.tracking.domain.service.DeliveryPreparationService;
 import com.scrim.delivery.delivery.tracking.domain.service.DeliveryQueryService;
 import jakarta.validation.Valid;
@@ -21,6 +23,7 @@ public class DeliveryController {
 
   private final DeliveryPreparationService deliveryPreparationService;
   private final DeliveryQueryService deliveryQueryService;
+  private final DeliveryCheckpointService deliveryCheckpointService;
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
@@ -43,6 +46,22 @@ public class DeliveryController {
   @GetMapping("/{deliveryId}")
   public DeliveryModel findById(@PathVariable UUID deliveryId) {
     return deliveryQueryService.findById(deliveryId);
+  }
+
+  @PostMapping("/{deliveryId}/placement")
+  public void place(@PathVariable UUID deliveryId) {
+    deliveryCheckpointService.place(deliveryId);
+  }
+
+  @PostMapping("/{deliveryId}/pickups")
+  public void pickUp(@PathVariable UUID deliveryId,
+                     @Valid @RequestBody CourierInput input) {
+    deliveryCheckpointService.pickUp(deliveryId, input.getCourierId());
+  }
+
+  @PostMapping("/{deliveryId}/completion")
+  public void complete(@PathVariable UUID deliveryId) {
+    deliveryCheckpointService.complete(deliveryId);
   }
 
 }

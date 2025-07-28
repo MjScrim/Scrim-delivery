@@ -13,6 +13,10 @@ public class DeliveryAssembler {
 
   private final ModelMapper modelMapper;
 
+  public Delivery toEntity(DeliveryModel delivery) {
+    return modelMapper.map(delivery, Delivery.class);
+  }
+
   public DeliveryModel toModel(Delivery delivery) {
     return modelMapper.map(delivery, DeliveryModel.class);
   }

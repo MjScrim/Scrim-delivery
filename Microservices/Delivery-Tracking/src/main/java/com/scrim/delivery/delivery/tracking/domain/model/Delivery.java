@@ -176,7 +176,7 @@ public class Delivery {
   }
 
   private void changeStatusTo(DeliveryStatus newStatus) {
-    if (newStatus != null && this.getStatus().canChangeTo(newStatus)) {
+    if (newStatus != null && this.getStatus().canNotChangeTo(newStatus)) {
       throw new DomainException(
         "Invalid Status transition from: " + this.getStatus() +
           " to " + newStatus

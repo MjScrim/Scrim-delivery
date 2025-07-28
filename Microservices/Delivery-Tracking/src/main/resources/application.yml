@@ -9,3 +9,5 @@ spring:
     url: jdbc:postgresql://host.docker.internal:5432/deliverydb
     username: postgres
     password: postgres
+
+    #host.docker.internal

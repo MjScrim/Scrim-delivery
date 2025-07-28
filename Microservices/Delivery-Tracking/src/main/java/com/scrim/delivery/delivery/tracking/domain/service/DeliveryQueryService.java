@@ -14,19 +14,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class DeliveryQueryService {
 
   private final DeliveryRepository deliveryRepository;
   private final DeliveryAssembler deliveryAssembler;
 
-  @Transactional
   public Page<DeliveryModel> findAll(Pageable pageable) {
     Page<Delivery> deliveryPage = deliveryRepository.findAll(pageable);
     return deliveryAssembler.toPageModel(deliveryPage);
   }
 
-  @Transactional
   public DeliveryModel findById(UUID deliveryId) {
     return deliveryRepository.findById(deliveryId)
       .map(deliveryAssembler::toModel)

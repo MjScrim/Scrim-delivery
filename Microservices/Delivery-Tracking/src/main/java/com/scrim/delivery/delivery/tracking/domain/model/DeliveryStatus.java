@@ -27,4 +27,5 @@ public enum DeliveryStatus {
   public boolean canChangeTo(DeliveryStatus newStatus) {
     return !canNotChangeTo(newStatus);
   }
+
 }
