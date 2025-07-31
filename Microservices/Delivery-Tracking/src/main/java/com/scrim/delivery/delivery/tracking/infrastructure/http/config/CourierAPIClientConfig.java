@@ -12,7 +12,7 @@ public class CourierAPIClientConfig {
 
   @Bean
   public CourierAPIClient courierAPIClient(RestClient.Builder builder) {
-    RestClient restClient = builder.baseUrl("http://host.docker.internal:8081").build();
+    RestClient restClient = builder.baseUrl("http://localhost:8081").build();
 
     RestClientAdapter restClientAdapter = RestClientAdapter.create(restClient);
 

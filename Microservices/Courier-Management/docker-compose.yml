@@ -1,5 +1,5 @@
 services:
-  scrim_delivery:
+  scrim-delivery:
     build:
       context: .
       dockerfile: Dockerfile

@@ -1,8 +1,12 @@
 package com.scrim.delivery.delivery.tracking.domain.model;
 
+import com.scrim.delivery.delivery.tracking.domain.event.DeliveryFulfilledEvent;
+import com.scrim.delivery.delivery.tracking.domain.event.DeliveryPickUpEvent;
+import com.scrim.delivery.delivery.tracking.domain.event.DeliveryPlacedEvent;
 import com.scrim.delivery.delivery.tracking.domain.exception.DomainException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -15,11 +19,11 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 //Identificando o AgregateRoot via Id.
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 //Apenas para nível privado, sem expor os campos.
 @Setter(AccessLevel.PRIVATE)
 @Getter
-public class Delivery {
+public class Delivery extends AbstractAggregateRoot<Delivery> {
 
   @Id
   @EqualsAndHashCode.Include
@@ -117,17 +121,38 @@ public class Delivery {
 
     this.setStatus(DeliveryStatus.WAITING_FOR_COURIER);
     this.setPlacedAt(OffsetDateTime.now());
+
+    super.registerEvent(
+      new DeliveryPlacedEvent(
+        this.getPlacedAt(),
+        this.getId()
+      )
+    );
   }
 
   public void pickUp(UUID courierId) {
     this.setCourierId(courierId);
     this.changeStatusTo(DeliveryStatus.IN_TRANSIT);
     this.setAssignedAt(OffsetDateTime.now());
+
+    super.registerEvent(
+      new DeliveryPickUpEvent(
+        this.getAssignedAt(),
+        this.getId()
+      )
+    );
   }
 
   public void markAsDelivery() {
     this.changeStatusTo(DeliveryStatus.DELIVERED);
     this.setFullfilledAt(OffsetDateTime.now());
+
+    super.registerEvent(
+      new DeliveryFulfilledEvent(
+        this.getFullfilledAt(),
+        this.getId()
+      )
+    );
   }
 
   //Removendo o acesso a item, retornando uma List não modificavel.
